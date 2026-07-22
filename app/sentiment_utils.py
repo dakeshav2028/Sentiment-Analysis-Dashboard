@@ -79,14 +79,14 @@ def classify_sentiment(text: str):
         # Map label names
         # Fallback model (lxyuan) uses 'positive', 'neutral', 'negative'
         # Fine-tuned model uses 'label_0', 'label_1', 'label_2'
-       if label in ('positive', 'label_2'):
-    mapped_label = 'positive'
-elif label in ('negative', 'label_0'):
-    mapped_label = 'negative'
-elif label in ('neutral', 'label_1'):
-    mapped_label = 'neutral'
-else:
-    mapped_label = 'neutral'
+        if label in ('positive', 'label_2'):
+            mapped_label = 'positive'
+        elif label in ('negative', 'label_0'):
+            mapped_label = 'negative'
+        elif label in ('neutral', 'label_1'):
+            mapped_label = 'neutral'
+        else:
+            mapped_label = 'neutral'
             
         return {
             "sentiment": mapped_label,
