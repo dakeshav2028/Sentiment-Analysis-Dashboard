@@ -17,6 +17,7 @@ COPY frontend/ frontend/
 COPY data/ data/
 COPY models/ models/
 COPY scripts/ scripts/
+COPY reviews.db /app/reviews.db
 
 EXPOSE 8000
 

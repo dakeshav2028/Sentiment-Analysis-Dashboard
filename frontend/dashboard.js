@@ -9,14 +9,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const textReview = document.getElementById("input-review");
     const btnPredict = document.getElementById("btn-predict");
     const predictResult = document.getElementById("predict-result");
-    
+
     // Initial fetch to check status
     checkAppStatus();
-    
+
     // Set up button event listeners
     btnReanalyze.addEventListener("click", () => triggerAnalysis(true));
     btnPredict.addEventListener("click", runPrediction);
-    
+
     // Live review text prediction
     textReview.addEventListener("keypress", (e) => {
         if (e.key === "Enter" && !e.shiftKey) {
@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
             runPrediction();
         }
     });
-    
+
     // Set up keyword tab listeners
     const tabBtns = document.querySelectorAll(".tab-btn");
     tabBtns.forEach(btn => {
@@ -41,12 +41,12 @@ async function checkAppStatus() {
     try {
         const response = await fetch("/status");
         const statusData = await response.json();
-        
+
         if (statusData.status === "pending_analysis") {
-            // Trigger batch analysis automatically if no cache
-            triggerAnalysis(false);
+            // Do NOT auto-trigger batch analysis — too slow for live server.
+            // Data should already be precomputed and shipped with the deployment.
+            showToast("Dashboard data not precomputed. Contact site owner.", "error");
         } else {
-            // Ready to display dashboard
             fetchDashboardData();
         }
     } catch (err) {
@@ -58,16 +58,16 @@ async function checkAppStatus() {
 async function triggerAnalysis(manual = false) {
     const overlay = document.getElementById("analysis-overlay");
     const spinner = document.getElementById("analyze-spinner");
-    
+
     overlay.classList.remove("hidden");
     if (manual) {
         spinner.style.display = "inline-block";
     }
-    
+
     try {
         const response = await fetch("/analyze", { method: "POST" });
         const result = await response.json();
-        
+
         if (result.status === "success") {
             showToast("Analysis completed successfully!");
             fetchDashboardData();
@@ -87,29 +87,29 @@ async function fetchDashboardData() {
     try {
         const response = await fetch("/dashboard-data");
         const data = await response.json();
-        
+
         if (data.status === "pending_analysis") {
-            triggerAnalysis(false);
+            showToast("Dashboard data not precomputed yet.", "error");
             return;
         }
-        
+
         // 1. Update stats elements
         document.getElementById("val-total-reviews").innerText = Number(data.summary.total_reviews).toLocaleString();
-        
+
         const accuracyPct = (data.summary.accuracy * 100).toFixed(1);
         document.getElementById("val-accuracy").innerText = accuracyPct + "%";
-        
+
         const posCount = data.summary.predicted_distribution.positive || 0;
         const neuCount = data.summary.predicted_distribution.neutral || 0;
         const negCount = data.summary.predicted_distribution.negative || 0;
         const total = data.summary.total_reviews || 3000;
-        
+
         document.getElementById("val-pos-count").innerText = Number(posCount).toLocaleString();
         document.getElementById("val-pos-pct").innerText = ((posCount / total) * 100).toFixed(1) + "% of total";
-        
+
         document.getElementById("val-neg-count").innerText = Number(negCount).toLocaleString();
         document.getElementById("val-neg-pct").innerText = ((negCount / total) * 100).toFixed(1) + "% of total";
-        
+
         // Update model badge
         const modelBadge = document.getElementById("model-badge");
         modelBadge.innerText = data.model_name || "DistilBERT Classifier";
@@ -122,17 +122,17 @@ async function fetchDashboardData() {
             modelBadge.style.color = "#a7f3d0";
             modelBadge.style.background = "rgba(16, 185, 129, 0.1)";
         }
-        
+
         // 2. Render charts
         renderDistributionChart(posCount, neuCount, negCount);
         renderTrendChart(data.trends);
-        
+
         // 3. Render Keywords
         cachedKeywords = data.keywords;
         // Find active tab and render
         const activeTab = document.querySelector(".tab-btn.active").getAttribute("data-tab");
         renderKeywords(activeTab);
-        
+
     } catch (err) {
         console.error("Error loading dashboard data:", err);
         showToast("Error loading dashboard data.", "error");
@@ -141,11 +141,11 @@ async function fetchDashboardData() {
 
 function renderDistributionChart(pos, neu, neg) {
     const ctx = document.getElementById("distributionChart").getContext("2d");
-    
+
     if (distChart) {
         distChart.destroy();
     }
-    
+
     distChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
@@ -177,11 +177,11 @@ function renderDistributionChart(pos, neu, neg) {
 
 function renderTrendChart(trends) {
     const ctx = document.getElementById("trendChart").getContext("2d");
-    
+
     if (trendChart) {
         trendChart.destroy();
     }
-    
+
     trendChart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -251,14 +251,14 @@ function renderTrendChart(trends) {
 function renderKeywords(sentiment) {
     const listElement = document.getElementById("keywords-list");
     listElement.innerHTML = "";
-    
+
     const words = cachedKeywords[sentiment] || [];
-    
+
     if (words.length === 0) {
         listElement.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-dim); padding: 1rem;">No keywords extracted.</p>`;
         return;
     }
-    
+
     words.forEach(item => {
         const wordEl = document.createElement("div");
         wordEl.className = "keyword-item";
@@ -274,12 +274,12 @@ async function runPrediction() {
     const textarea = document.getElementById("input-review");
     const text = textarea.value.trim();
     const resultDiv = document.getElementById("predict-result");
-    
+
     if (!text) {
         showToast("Please enter text to analyze.", "error");
         return;
     }
-    
+
     try {
         const response = await fetch("/predict", {
             method: "POST",
@@ -287,25 +287,25 @@ async function runPrediction() {
             body: JSON.stringify({ text: text })
         });
         const result = await response.json();
-        
+
         // Show result panel
         resultDiv.classList.remove("hidden");
-        
+
         // Update badge
         const badge = document.getElementById("result-badge");
         badge.innerText = result.sentiment;
         badge.className = "badge"; // Reset classes
         badge.classList.add("badge-" + result.sentiment);
-        
+
         // Update confidence
         const confidencePct = Math.round(result.confidence * 100);
         document.getElementById("result-confidence").innerText = confidencePct + "%";
-        
+
         const barFill = document.getElementById("confidence-bar-fill");
         barFill.style.width = confidencePct + "%";
         barFill.className = "confidence-bar-fill"; // Reset classes
         barFill.classList.add("bg-" + result.sentiment);
-        
+
     } catch (err) {
         console.error("Error predicting review:", err);
         showToast("Error classification endpoint.", "error");
@@ -327,16 +327,16 @@ function showToast(message, type = "success") {
     toast.style.fontWeight = "600";
     toast.style.zIndex = "2000";
     toast.style.boxShadow = "0 4px 12px rgba(0,0,0,0.5)";
-    
+
     if (type === "success") {
         toast.style.background = "#10b981";
     } else {
         toast.style.background = "#ef4444";
     }
-    
+
     toast.innerText = message;
     document.body.appendChild(toast);
-    
+
     setTimeout(() => {
         toast.style.opacity = "0";
         toast.style.transition = "opacity 0.5s ease";
