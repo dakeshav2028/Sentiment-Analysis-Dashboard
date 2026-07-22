@@ -1,4 +1,6 @@
 import os
+import torch
+torch.set_num_threads(1)
 from transformers import pipeline
 
 # Global model and pipeline references
@@ -12,7 +14,7 @@ def get_sentiment_pipeline():
     model_dir = os.path.join(os.path.dirname(__file__), "..", "models", "sentiment_model")
     fallback_flag = os.path.join(os.path.dirname(__file__), "..", "models", "fallback_active.txt")
     
-    fallback_model = "lxyuan/distilbert-base-multilingual-cased-sentiments-student"
+    fallback_model = "distilbert-base-uncased-finetuned-sst-2-english"
     
     # Check if fallback is explicitly active or fine-tuned model does not exist
     use_fallback = False
@@ -77,14 +79,14 @@ def classify_sentiment(text: str):
         # Map label names
         # Fallback model (lxyuan) uses 'positive', 'neutral', 'negative'
         # Fine-tuned model uses 'label_0', 'label_1', 'label_2'
-        if label == 'positive' or label == 'label_2':
-            mapped_label = 'positive'
-        elif label == 'neutral' or label == 'label_1':
-            mapped_label = 'neutral'
-        elif label == 'negative' or label == 'label_0':
-            mapped_label = 'negative'
-        else:
-            mapped_label = 'neutral'
+       if label in ('positive', 'label_2'):
+    mapped_label = 'positive'
+elif label in ('negative', 'label_0'):
+    mapped_label = 'negative'
+elif label in ('neutral', 'label_1'):
+    mapped_label = 'neutral'
+else:
+    mapped_label = 'neutral'
             
         return {
             "sentiment": mapped_label,
