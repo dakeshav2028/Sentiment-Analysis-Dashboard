@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  reviewpulse:
+    build: .
+    container_name: reviewpulse_app
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/workspace
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: always

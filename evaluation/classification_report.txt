@@ -1,0 +1,13 @@
+Model Used: Fallback Pretrained (lxyuan)
+Test Set Accuracy: 0.5580
+
+Classification Report:
+              precision    recall  f1-score   support
+
+    Negative       0.52      0.65      0.58       167
+     Neutral       0.59      0.16      0.25       166
+    Positive       0.58      0.86      0.70       167
+
+    accuracy                           0.56       500
+   macro avg       0.56      0.56      0.51       500
+weighted avg       0.56      0.56      0.51       500

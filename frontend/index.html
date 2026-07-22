@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReviewPulse — Product Review Sentiment Analyzer</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="glow-container">
+        <div class="glow-sphere glow-blue"></div>
+        <div class="glow-sphere glow-purple"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="main-header">
+            <div class="logo-area">
+                <span class="logo-icon">⚡</span>
+                <div class="logo-text">
+                    <h1>ReviewPulse</h1>
+                    <p class="tagline">Product Review Sentiment Analyzer</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <span id="model-badge" class="model-badge">Checking Model...</span>
+                <button id="btn-reanalyze" class="btn btn-primary btn-glow">
+                    <span class="btn-text">Run Batch Analysis</span>
+                    <span class="spinner" id="analyze-spinner"></span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Loading Overlay for Analysis -->
+        <div id="analysis-overlay" class="overlay hidden">
+            <div class="overlay-content">
+                <div class="pulse-loader"></div>
+                <h2>Analyzing 3,000 Product Reviews</h2>
+                <p>Running model inference, precomputing trends, and extracting keywords. This takes about 10-15 seconds...</p>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Content -->
+        <main class="dashboard-grid">
+            
+            <!-- Summary Row -->
+            <section class="summary-section full-width">
+                <div class="card stat-card" id="card-total">
+                    <div class="stat-icon icon-blue">📊</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Total Sample Reviews</span>
+                        <h2 class="stat-value" id="val-total-reviews">3,000</h2>
+                    </div>
+                </div>
+                <div class="card stat-card" id="card-accuracy">
+                    <div class="stat-icon icon-purple">🎯</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Model Accuracy</span>
+                        <h2 class="stat-value" id="val-accuracy">--%</h2>
+                        <span class="stat-subtext">vs. star-rating ground truth</span>
+                    </div>
+                </div>
+                <div class="card stat-card" id="card-pos">
+                    <div class="stat-icon icon-green">😊</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Positive Sentiment</span>
+                        <h2 class="stat-value text-positive" id="val-pos-count">--</h2>
+                        <span class="stat-subtext" id="val-pos-pct">--% of total</span>
+                    </div>
+                </div>
+                <div class="card stat-card" id="card-neg">
+                    <div class="stat-icon icon-red">😔</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Negative Sentiment</span>
+                        <h2 class="stat-value text-negative" id="val-neg-count">--</h2>
+                        <span class="stat-subtext" id="val-neg-pct">--% of total</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Main Charts Grid -->
+            <!-- Left Column: Volume and Keywords -->
+            <div class="left-col">
+                <!-- Trend Chart -->
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h3>Volume Trends Over Time</h3>
+                        <p class="card-subtitle">Daily count of product reviews by classified sentiment class</p>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Top Keywords -->
+                <div class="card keywords-card">
+                    <div class="card-header">
+                        <h3>Sentiment Keyword Analysis (TF-IDF)</h3>
+                        <p class="card-subtitle">Top descriptive terms extracted per classified group</p>
+                        <div class="tab-container">
+                            <button class="tab-btn active" data-tab="positive">Positive</button>
+                            <button class="tab-btn" data-tab="neutral">Neutral</button>
+                            <button class="tab-btn" data-tab="negative">Negative</button>
+                        </div>
+                    </div>
+                    <div class="tab-content" id="keywords-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Distribution & Try it Yourself -->
+            <div class="right-col">
+                <!-- Distribution Chart -->
+                <div class="card chart-card compact-chart">
+                    <div class="card-header">
+                        <h3>Sentiment Distribution</h3>
+                        <p class="card-subtitle">Comparison of predicted reviews</p>
+                    </div>
+                    <div class="chart-wrapper doughnut-wrapper">
+                        <canvas id="distributionChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Try it yourself box -->
+                <div class="card try-it-card">
+                    <div class="card-header">
+                        <h3>Live Review Classifier</h3>
+                        <p class="card-subtitle">Enter custom text to test model inference in real-time</p>
+                    </div>
+                    <div class="try-it-body">
+                        <textarea id="input-review" placeholder="Type a product review here... (e.g., 'This product is absolutely amazing! Setup took 5 minutes, and it works flawlessly.')"></textarea>
+                        <div class="try-it-actions">
+                            <button id="btn-predict" class="btn btn-secondary btn-full">
+                                <span>Analyze Sentiment</span>
+                            </button>
+                        </div>
+                        <div id="predict-result" class="predict-result hidden">
+                            <div class="result-header">
+                                <span class="result-label">Result:</span>
+                                <span id="result-badge" class="badge">Neutral</span>
+                            </div>
+                            <div class="confidence-container">
+                                <div class="confidence-label">
+                                    <span>Model Confidence:</span>
+                                    <span id="result-confidence">95%</span>
+                                </div>
+                                <div class="confidence-bar">
+                                    <div id="confidence-bar-fill" class="confidence-bar-fill"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </main>
+        
+        <footer class="main-footer">
+            <p>ReviewPulse &copy; 2026. Data Science Portfolio Project #2. Keshav Sarda.</p>
+        </footer>
+    </div>
+
+    <script src="/static/dashboard.js"></script>
+</body>
+</html>
