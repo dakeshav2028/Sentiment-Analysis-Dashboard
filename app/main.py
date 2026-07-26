@@ -2,20 +2,40 @@ import os
 import sqlite3
 import json
 import random
+from contextlib import asynccontextmanager
 from datetime import datetime, timedelta
 import pandas as pd
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from app.sentiment_utils import classify_sentiment
+from app.sentiment_utils import classify_sentiment, get_sentiment_pipeline
 from app.keyword_utils import extract_top_keywords
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Pre-warm the sentiment model at startup to avoid first-request OOM crashes."""
+    print("[STARTUP] Pre-loading sentiment model...")
+    get_sentiment_pipeline()
+    print("[STARTUP] Model loaded and ready.")
+    yield
 
 # Initialize FastAPI app
 app = FastAPI(
     title="ReviewPulse - Product Review Sentiment Analyzer",
-    description="FastAPI backend with cached sentiment analysis metrics and SQLite persistence."
+    description="FastAPI backend with cached sentiment analysis metrics and SQLite persistence.",
+    lifespan=lifespan
+)
+
+# Allow cross-origin requests from any frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 DB_PATH = "reviews.db"
