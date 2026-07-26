@@ -8,14 +8,13 @@ import seaborn as sns
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix
 from transformers import (
-    DistilBertTokenizerFast,
-    DistilBertForSequenceClassification,
+    BertTokenizerFast,
+    BertForSequenceClassification,
     Trainer,
     TrainingArguments,
     TrainerCallback,
     pipeline
 )
-
 # Custom callback to enforce time limits on CPU fine-tuning
 class TimeLimitCallback(TrainerCallback):
     def __init__(self, time_limit_seconds=600):  # Default 10 minutes
@@ -93,12 +92,12 @@ def main():
     
     # 2. Attempt Fine-Tuning (Option B)
     try:
-        print("\nAttempting to fine-tune DistilBERT on CPU...")
-        model_name = "distilbert-base-uncased"
+        print("\nAttempting to fine-tune BERT-Tiny on CPU...")
+        model_name = "prajjwal1/bert-tiny"
         
         print("Loading tokenizer and model...")
-        tokenizer = DistilBertTokenizerFast.from_pretrained(model_name)
-        model = DistilBertForSequenceClassification.from_pretrained(model_name, num_labels=3)
+        tokenizer = BertTokenizerFast.from_pretrained(model_name)
+        model = BertForSequenceClassification.from_pretrained(model_name, num_labels=3)
         
         print("Tokenizing datasets...")
         train_encodings = tokenizer(list(train_df['review_text']), truncation=True, padding=True, max_length=128)
@@ -218,7 +217,7 @@ def main():
     
     # Save classification report
     with open("evaluation/classification_report.txt", "w") as f:
-        f.write(f"Model Used: {'Fallback Pretrained (lxyuan)' if fine_tune_failed else 'Fine-tuned DistilBERT'}\n")
+        f.write(f"Model Used: {'Fallback Pretrained (lxyuan)' if fine_tune_failed else 'Fine-tuned BERT-Tiny'}\n")
         f.write(f"Test Set Accuracy: {accuracy:.4f}\n\n")
         f.write("Classification Report:\n")
         f.write(report)
@@ -240,7 +239,8 @@ def main():
     misclassified_indices = [i for i, (p, t) in enumerate(zip(predictions, true_labels)) if p != t]
     
     misclassified_md = f"# Qualitative Error Analysis\n\n"
-    misclassified_md += f"**Model Analyzed:** {'Fallback Pretrained (lxyuan/distilbert-base-multilingual-cased-sentiments-student)' if fine_tune_failed else 'Fine-tuned DistilBERT'}\n"
+    misclassified_md += f"**Model Analyzed:** {'Fallback Pretrained (lxyuan/distilbert-base-multilingual-cased-sentiments-student)' if fine_tune_failed else 'Fine-tuned BERT-Tiny'}\n"
+
     misclassified_md += f"**Test Set Accuracy:** {accuracy:.4f}\n"
     misclassified_md += f"**Total Misclassified Reviews in Test Set:** {len(misclassified_indices)} out of {len(test_df)}\n\n"
     misclassified_md += "Below are 8 analyzed examples of misclassifications, showing the text, star rating, ground truth, and predicted sentiment, along with a diagnostic comment.\n\n"
