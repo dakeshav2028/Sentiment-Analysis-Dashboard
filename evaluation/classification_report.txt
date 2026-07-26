@@ -1,13 +1,13 @@
-Model Used: Fallback Pretrained (lxyuan)
+Model Used: Fine-tuned BERT-Tiny
 Test Set Accuracy: 0.5580
 
 Classification Report:
               precision    recall  f1-score   support
 
-    Negative       0.52      0.65      0.58       167
-     Neutral       0.59      0.16      0.25       166
-    Positive       0.58      0.86      0.70       167
+    Negative       0.56      0.48      0.52       167
+     Neutral       0.48      0.54      0.51       166
+    Positive       0.64      0.65      0.65       167
 
     accuracy                           0.56       500
-   macro avg       0.56      0.56      0.51       500
-weighted avg       0.56      0.56      0.51       500
+   macro avg       0.56      0.56      0.56       500
+weighted avg       0.56      0.56      0.56       500

@@ -1,6 +1,6 @@
 # Qualitative Error Analysis
 
-**Model Analyzed:** Fallback Pretrained (lxyuan/distilbert-base-multilingual-cased-sentiments-student)
+**Model Analyzed:** Fine-tuned BERT-Tiny
 **Test Set Accuracy:** 0.5580
 **Total Misclassified Reviews in Test Set:** 221 out of 500
 
@@ -17,32 +17,32 @@ Great concept, but doesn't work on heavier larger phones like the Note 8. The ph
 - **Analysis:** The review contains both positive and negative aspects (e.g., 'good product but bad packaging'). The model struggled to weigh the opposing sentiment clauses correctly.
 
 ### Example 2
-- **Review Text:** "Seems to work
+- **Review Text:** "Seams rip easily.
 
-I see improvement with my Great Pyrenees but it’s hard to get him to eat these. Update - he won't eat these anymore. What can you do."
-- **Star Rating:** 3 Stars
-- **Ground Truth Label:** Neutral
-- **Predicted Label:** Negative
+I use this for my daughter’s clothes. She’s 3, so her clothes aren’t big or heavy. We live in CA, so no heavy winter gear or jackets, just short sleeve regular t shirts and shorts, but somehow one of the seams of the boxes ripped. Look at other reviews, this is a common problem."
+- **Star Rating:** 2 Stars
+- **Ground Truth Label:** Negative
+- **Predicted Label:** Neutral
 - **Error Category:** Mixed Sentiment
 - **Analysis:** The review contains both positive and negative aspects (e.g., 'good product but bad packaging'). The model struggled to weigh the opposing sentiment clauses correctly.
 
 ### Example 3
-- **Review Text:** "For narrow feet only
+- **Review Text:** "Two Stars
 
-Very cute shoe but is for a very narrow foot."
-- **Star Rating:** 3 Stars
-- **Ground Truth Label:** Neutral
-- **Predicted Label:** Positive
+Looked cheap, had a hard time using side buttons. Returned it."
+- **Star Rating:** 2 Stars
+- **Ground Truth Label:** Negative
+- **Predicted Label:** Neutral
 - **Error Category:** Mixed Sentiment
 - **Analysis:** The review contains both positive and negative aspects (e.g., 'good product but bad packaging'). The model struggled to weigh the opposing sentiment clauses correctly.
 
 ### Example 4
-- **Review Text:** "Cute, but multiple bags needed.
+- **Review Text:** "Its trash, but you get what you pay for.
 
-The colors were cute and girly. Perfect for our 1 year old daughter. The balls are not very sturdy. She is able to squeeze them, I make sure not to crush them if I get in the pit with her. 1 bag is definitely not enough. We bought 3 bags of 200 balls and maybe could have even gotten away with one more."
-- **Star Rating:** 3 Stars
-- **Ground Truth Label:** Neutral
-- **Predicted Label:** Positive
+Spend an extra ten or twenty dollars and get something that will last."
+- **Star Rating:** 1 Stars
+- **Ground Truth Label:** Negative
+- **Predicted Label:** Neutral
 - **Error Category:** Mixed Sentiment
 - **Analysis:** The review contains both positive and negative aspects (e.g., 'good product but bad packaging'). The model struggled to weigh the opposing sentiment clauses correctly.
 
@@ -52,37 +52,37 @@ The colors were cute and girly. Perfect for our 1 year old daughter. The balls a
 Not big enough for smart key"
 - **Star Rating:** 2 Stars
 - **Ground Truth Label:** Negative
-- **Predicted Label:** Neutral
+- **Predicted Label:** Positive
 - **Error Category:** Subtle / Sarcastic Tone
 - **Analysis:** The sentiment is expressed through sarcasm or subtle context that simple word associations cannot easily capture.
 
 ### Example 6
-- **Review Text:** "Very heavy... certainly not for backpacking
+- **Review Text:** "Works great
 
-This thing isn't waterproof and it's very heavy.. probably not the best choice for normal fishing... If your typical fish is less than #100 then you should go much lighter. -2 Stars for weight"
-- **Star Rating:** 3 Stars
-- **Ground Truth Label:** Neutral
-- **Predicted Label:** Negative
-- **Error Category:** Ambiguous 3-Star Rating
-- **Analysis:** 3-star reviews are often highly neutral or moderately mixed. The star rating mapping is inherently noisy here, as the reviewer might sound slightly positive or negative, causing a mismatch with the 'Neutral' ground truth.
+Exactly as advertised. I installed it in my garage on the ceiling. I mostly use it to run a table saw and air compressor during projects. I have had no issues so far. It retracts well and is heavy duty enough that I Know it will handle anything I will be using it for."
+- **Star Rating:** 5 Stars
+- **Ground Truth Label:** Positive
+- **Predicted Label:** Neutral
+- **Error Category:** Subtle / Sarcastic Tone
+- **Analysis:** The sentiment is expressed through sarcasm or subtle context that simple word associations cannot easily capture.
 
 ### Example 7
-- **Review Text:** "Coverage was fair
+- **Review Text:** "Big??? Cheaper more comfortable and their big NOT THESE
 
-Coverage was fair but came off easily once applied. Also, has a kind of Minty type smell to it that I didn't care for"
-- **Star Rating:** 3 Stars
-- **Ground Truth Label:** Neutral
-- **Predicted Label:** Positive
+Large but tightly made, feels small in shower, too small, too tight to add soap and clean with...put the rest away.. never to be used again."
+- **Star Rating:** 1 Stars
+- **Ground Truth Label:** Negative
+- **Predicted Label:** Neutral
 - **Error Category:** Mixed Sentiment
 - **Analysis:** The review contains both positive and negative aspects (e.g., 'good product but bad packaging'). The model struggled to weigh the opposing sentiment clauses correctly.
 
 ### Example 8
-- **Review Text:** "HORRIBLE
+- **Review Text:** "Four Stars
 
-HORRIBLE DONT GET IT IT IS THE WORSE THING EVER IT MIGHT LOOK GOOD BUT IT IS NO"
-- **Star Rating:** 1 Stars
-- **Ground Truth Label:** Negative
-- **Predicted Label:** Positive
+Nice, but a bit heavy."
+- **Star Rating:** 4 Stars
+- **Ground Truth Label:** Positive
+- **Predicted Label:** Neutral
 - **Error Category:** Mixed Sentiment
 - **Analysis:** The review contains both positive and negative aspects (e.g., 'good product but bad packaging'). The model struggled to weigh the opposing sentiment clauses correctly.
 
